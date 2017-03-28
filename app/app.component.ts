@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Task } from './task.model';
 
 @Component({
   selector: 'app-root',
@@ -6,10 +7,10 @@ import { Component } from '@angular/core';
     <div class='container'>
       <h1>To Do List for {{month}}/{{day}}/{{year}}</h1>
       <h3>{{currentFocus}}</h3>
-        <ul>
-          <li *ngFor="let currentTask of tasks" (click)="currentTask.finishTask()">{{currentTask.description}} <button (click)="editTask()">Edit!</button></li>
-        </ul>
-    </div>
+      <task-list [childTaskList]="masterTaskList" (clickSender)="editTask($event)"></task-list>
+      <edit-task [childSelectedTask]="selectedTask" (doneButtonClickedSender)="finishedEditing()"></edit-task>
+      <new-task (newTaskSender)="addTask($event)"></new-task>
+      </div>
   `
 })
 
@@ -19,29 +20,23 @@ export class AppComponent {
   month: number = this.currentTime.getMonth() + 1;
   day: number = this.currentTime.getDate();
   year: number = this.currentTime.getFullYear();
-  tasks: Task[] = [
-    new Task("Finish weekend Angular homework for Epicodus course"),
-    new Task("Begin brainstorming possible JavaScript group projects"),
-    new Task("Add README file to last few Angular repos on GitHub")
+  selectedTask = null;
+
+  masterTaskList: Task[] = [
+    new Task("Finish weekend Angular homework for Epicodus course", 3),
+    new Task("Begin brainstorming possible JavaScript group projects", 2),
+    new Task("Add README file to last few Angular repos on GitHub", 2)
   ];
-  editTask() {
-    alert("You just requested to edit a Task!")
+
+  editTask(currentTask) {
+    this.selectedTask = currentTask;
   }
 
-  isDone(clickedTask: Task) {
-    if(clickedTask.done === true) {
-      alert("This task is done!");
-    } else {
-      alert("This task is not done. Better get to work!")
-    }
+  finishedEditing() {
+    this.selectedTask = null;
   }
-}
 
-export class Task {
-  public done: boolean = false;
-  constructor(public description: string) { }
-  finishTask() {
-    this.done = true;
-    console.log(this);
+  addTask(newTaskFromChild: Task) {
+    this.masterTaskList.push(newTaskFromChild);
   }
 }
